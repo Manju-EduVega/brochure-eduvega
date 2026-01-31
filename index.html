@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=0.35, minimum-scale=0.1, maximum-scale=3.0, user-scalable=yes">
     <title>EduVega.ai Brochure </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
@@ -74,15 +74,24 @@
         }
 
         /* ================================
-   MOBILE: Keep A4 page format (like tablet)
+   MOBILE: Allow natural scrolling (zoom/pan)
    ================================ */
         @media screen and (max-width: 767px) {
             body {
+                overflow-x: auto !important;
+                overflow-y: auto !important;
                 padding: 8px;
+                width: auto;
+                min-width: 100%;
             }
 
             .page {
                 margin: 8px auto;
+                transform: none !important;
+            }
+
+            .page-wrap {
+                transform: none !important;
             }
         }
 
@@ -90,17 +99,8 @@
    Responsive viewing fix (mobile-safe)
    ================================ */
         @media screen {
-
-            html,
-            body {
-                overflow-x: hidden;
-                width: 100%;
-                max-width: 100%;
-            }
-
             .page-wrap {
                 width: 100%;
-                max-width: 100%;
                 display: flex;
                 justify-content: center;
                 overflow: visible;
@@ -110,7 +110,6 @@
                 transform-origin: top center;
                 margin-left: auto;
                 margin-right: auto;
-                max-width: 100%;
             }
         }
 
@@ -303,6 +302,14 @@
 <script>
     (function () {
         function ensureWrap() {
+            const vw = Math.max(320, window.innerWidth);
+            const isMobile = vw < 768;
+
+            // Skip wrapping on mobile - not needed when no transform scaling
+            if (isMobile) {
+                return;
+            }
+
             document.querySelectorAll('.page').forEach((page) => {
                 if (page.parentElement && page.parentElement.classList.contains('page-wrap')) return;
 
@@ -314,12 +321,19 @@
         }
 
         function fitPages() {
+            const vw = Math.max(320, window.innerWidth);
+            const isMobile = vw < 768;
+
+            // On mobile, skip scaling - allow natural A4 size with scroll/zoom
+            if (isMobile) {
+                return;
+            }
+
+            // Tablet/Desktop: Apply scaling for A4 brochure format
             ensureWrap();
 
             const pages = document.querySelectorAll('.page');
-            const vw = Math.max(320, window.innerWidth);
-            const isMobile = vw < 768;
-            const padding = isMobile ? 16 : 24; // Safe padding
+            const padding = 24; // Desktop padding
             const available = vw - padding;
 
             pages.forEach((page) => {
@@ -338,7 +352,7 @@
 
                 // Adjust spacing between pages based on scale
                 const pageHeight = 297; // mm
-                const baseGap = isMobile ? 10 : 20;
+                const baseGap = 20;
 
                 // Calculate scaled height impact
                 if (scale < 1) {
