@@ -73,6 +73,17 @@
             }
         }
 
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 6px;
+            }
+
+            .page {
+                margin: 8px auto;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+        }
+
         /* ================================
    Responsive viewing fix (mobile-safe)
    ================================ */
@@ -81,10 +92,13 @@
             html,
             body {
                 overflow-x: hidden;
+                width: 100%;
+                max-width: 100%;
             }
 
             .page-wrap {
                 width: 100%;
+                max-width: 100%;
                 display: flex;
                 justify-content: center;
                 overflow: visible;
@@ -94,6 +108,79 @@
                 transform-origin: top center;
                 margin-left: auto;
                 margin-right: auto;
+                max-width: 100%;
+            }
+        }
+
+        /* ================================
+   Print fixes: prevent "transparent" gradient text from disappearing
+   ================================ */
+        @media print {
+            /* Reset any transforms for print */
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            .page {
+                margin: 0;
+                box-shadow: none;
+                page-break-after: always;
+                transform: none !important;
+                width: 210mm;
+                height: 297mm;
+            }
+
+            .page-wrap {
+                transform: none !important;
+            }
+
+            /* Force visible text for gradient text elements */
+            .text-transparent,
+            [class*="text-transparent"] {
+                color: #0b1220 !important;
+                -webkit-text-fill-color: #0b1220 !important;
+            }
+
+            .bg-clip-text,
+            [class*="bg-clip-text"] {
+                background: none !important;
+                -webkit-background-clip: border-box !important;
+                background-clip: border-box !important;
+            }
+
+            /* Extra safety: ensure colors print correctly */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            /* Fix specific gradient headings for print - make them visible */
+            h2.bg-gradient-to-r,
+            h3.bg-gradient-to-r,
+            .bg-gradient-to-r.bg-clip-text {
+                color: #1e293b !important;
+                -webkit-text-fill-color: #1e293b !important;
+                background: none !important;
+                -webkit-background-clip: border-box !important;
+                background-clip: border-box !important;
+            }
+
+            /* Ensure dark backgrounds print correctly */
+            .bg-slate-900 {
+                background-color: #0f172a !important;
+            }
+
+            /* Keep white text on dark backgrounds */
+            .bg-slate-900 * {
+                color: white !important;
+            }
+
+            /* Override for specific gradient text on dark bg */
+            .bg-slate-900 .bg-gradient-to-r.bg-clip-text {
+                color: white !important;
+                -webkit-text-fill-color: white !important;
             }
         }
     </style>
@@ -117,7 +204,8 @@
 
             const pages = document.querySelectorAll('.page');
             const vw = Math.max(320, window.innerWidth);
-            const padding = 24; // safe space
+            const isMobile = vw < 768;
+            const padding = isMobile ? 16 : 24; // Safe padding for mobile
             const available = vw - padding;
 
             pages.forEach((page) => {
@@ -127,14 +215,27 @@
                 const naturalWidth = page.getBoundingClientRect().width || page.offsetWidth;
                 page.style.transform = prev;
 
+                // Calculate scale to fit viewport width
                 const scale = Math.min(1, available / naturalWidth);
 
+                // Apply scale transform (preserves A4 page structure)
                 page.style.transform = `scale(${scale})`;
+                page.style.transformOrigin = 'top center';
 
-                // Preserve spacing between scaled pages
-                const baseGap = 20;
-                const extraGap = scale < 1 ? (1 - scale) * 520 : 0;
-                page.style.marginBottom = `${baseGap + extraGap}px`;
+                // Adjust spacing between pages based on scale
+                // When scaled down, we need extra margin to prevent overlap
+                const pageHeight = 297; // mm
+                const baseGap = isMobile ? 12 : 20;
+
+                // Calculate scaled height impact
+                if (scale < 1) {
+                    const scaledHeightReduction = pageHeight * (1 - scale);
+                    // Convert mm to approximate px (assuming 96 DPI: 1mm ≈ 3.78px)
+                    const extraGap = scaledHeightReduction * 3.78;
+                    page.style.marginBottom = `${baseGap + extraGap}px`;
+                } else {
+                    page.style.marginBottom = `${baseGap}px`;
+                }
             });
         }
 
@@ -145,32 +246,6 @@
         // Run now
         fitPages();
     })();
-
-    /* ================================
-   Print fixes: prevent "transparent" gradient text from disappearing
-   ================================ */
-    @media print {
-  /* If you use bg-clip-text / text-transparent anywhere, force visible text */
-  .text - transparent,
-            [class*= "text-transparent"] {
-            color: #0b1220!important;
-            -webkit - text - fill - color: #0b1220!important;
-        }
-
-  .bg - clip - text,
-            [class*= "bg-clip-text"] {
-            background: none!important;
-            -webkit - background - clip: border - box!important;
-            background - clip: border - box!important;
-        }
-
-  /* Extra safety: some browsers try to optimize colors in print */
-  * {
-    - webkit - print - color - adjust: exact;
-        print - color - adjust: exact;
-    }
-}
-
 </script>
 
 
