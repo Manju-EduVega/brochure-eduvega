@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduVega Brochure (Print Ready v3)</title>
+    <title>EduVega.ai Brochure </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
@@ -52,8 +52,52 @@
             opacity: 0.4;
             z-index: 0;
         }
+
+        /* ================================
+   Responsive browser viewing only
+   (does NOT affect print output)
+   ================================ */
+        @media screen {
+            .page {
+                transform-origin: top center;
+            }
+
+            body {
+                padding: 12px;
+            }
+        }
+
+        @media screen and (max-width: 900px) {
+            .page {
+                margin: 12px auto;
+            }
+        }
     </style>
 </head>
+
+<script>
+    (function () {
+        const PAGE_WIDTH_PX = 794; // A4 width ≈ 210mm @ 96dpi
+        const BODY_PADDING = 24;
+
+        function fitPages() {
+            const pages = document.querySelectorAll('.page');
+            const availableWidth = Math.max(320, window.innerWidth - BODY_PADDING);
+            const scale = Math.min(1, availableWidth / PAGE_WIDTH_PX);
+
+            pages.forEach((page) => {
+                page.style.transform = `scale(${scale})`;
+                page.style.marginBottom = scale < 1
+                    ? `${(1 - scale) * 420}px`
+                    : '20px';
+            });
+        }
+
+        window.addEventListener('resize', fitPages);
+        window.addEventListener('load', fitPages);
+        fitPages();
+    })();
+</script>
 
 <body>
 
@@ -235,7 +279,8 @@
                                 STORIES</span>
                             <h3 class="font-bold text-2xl text-slate-900">Interactive Narrative Journeys</h3>
                             <p class="text-slate-600 text-sm mt-2 max-w-md">
-                                Stories that listen , building comprehension, confidence, and expressive language. As characters speak, the child replies, driving the plot forward.
+                                Stories that listen , building comprehension, confidence, and expressive language. As
+                                characters speak, the child replies, driving the plot forward.
                                 This "Turn-Taking" builds crucial social and linguistic skills.
                             </p>
                         </div>
@@ -257,7 +302,7 @@
                                 LEARNING</span>
                             <h3 class="font-bold text-2xl text-slate-900">Missions & Competency Maps</h3>
                             <p class="text-slate-600 text-sm mt-2 max-w-md">
-                                Learning goals disguised as quests. Every interaction maps to a clear competency. 
+                                Learning goals disguised as quests. Every interaction maps to a clear competency.
                                 giving learner, parents and educators real insight behind the fun,
 
                             </p>
@@ -368,7 +413,7 @@
                                 class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 shadow-lg shadow-blue-500/50">
                             </div>
                             <div class="text-blue-400 font-bold uppercase tracking-widest text-[10px]">FOR EDUCATOR
-                          </div>
+                            </div>
                         </div>
                         <h3 class="text-xl font-bold mb-1.5 text-white">EarlyBloom Studio</h3>
                         <p class="text-slate-300 mb-2 text-sm leading-relaxed">
@@ -407,7 +452,8 @@
                             <div
                                 class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-purple-400 to-purple-600 shadow-lg shadow-purple-500/50">
                             </div>
-                            <div class="text-purple-400 font-bold uppercase tracking-widest text-[10px]">FOR PARENTS (WITH EDUCATOR VISIBILITY)
+                            <div class="text-purple-400 font-bold uppercase tracking-widest text-[10px]">FOR PARENTS
+                                (WITH EDUCATOR VISIBILITY)
                             </div>
                         </div>
                         <h3 class="text-xl font-bold mb-1.5 text-white">EarlyBloom Planner</h3>
@@ -533,7 +579,8 @@
                         <div
                             class="w-2 h-2 bg-gradient-to-r from-indigo-300 to-indigo-500 rounded-full shadow shadow-indigo-500/40">
                         </div>
-                        <span class="text-slate-600 font-medium text-sm">English (US), English (India) — more languages coming soon.
+                        <span class="text-slate-600 font-medium text-sm">English (US), English (India) — more languages
+                            coming soon.
                         </span>
                     </div>
                     <div
