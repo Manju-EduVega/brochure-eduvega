@@ -72,32 +72,107 @@
                 margin: 12px auto;
             }
         }
+
+        /* ================================
+   Responsive viewing fix (mobile-safe)
+   ================================ */
+        @media screen {
+
+            html,
+            body {
+                overflow-x: hidden;
+            }
+
+            .page-wrap {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                overflow: visible;
+            }
+
+            .page {
+                transform-origin: top center;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
     </style>
 </head>
 
 <script>
     (function () {
-        const PAGE_WIDTH_PX = 794; // A4 width ≈ 210mm @ 96dpi
-        const BODY_PADDING = 24;
+        function ensureWrap() {
+            document.querySelectorAll('.page').forEach((page) => {
+                if (page.parentElement && page.parentElement.classList.contains('page-wrap')) return;
 
-        function fitPages() {
-            const pages = document.querySelectorAll('.page');
-            const availableWidth = Math.max(320, window.innerWidth - BODY_PADDING);
-            const scale = Math.min(1, availableWidth / PAGE_WIDTH_PX);
-
-            pages.forEach((page) => {
-                page.style.transform = `scale(${scale})`;
-                page.style.marginBottom = scale < 1
-                    ? `${(1 - scale) * 420}px`
-                    : '20px';
+                const wrap = document.createElement('div');
+                wrap.className = 'page-wrap';
+                page.parentNode.insertBefore(wrap, page);
+                wrap.appendChild(page);
             });
         }
 
-        window.addEventListener('resize', fitPages);
+        function fitPages() {
+            ensureWrap();
+
+            const pages = document.querySelectorAll('.page');
+            const vw = Math.max(320, window.innerWidth);
+            const padding = 24; // safe space
+            const available = vw - padding;
+
+            pages.forEach((page) => {
+                // Measure natural width without transform
+                const prev = page.style.transform;
+                page.style.transform = 'none';
+                const naturalWidth = page.getBoundingClientRect().width || page.offsetWidth;
+                page.style.transform = prev;
+
+                const scale = Math.min(1, available / naturalWidth);
+
+                page.style.transform = `scale(${scale})`;
+
+                // Preserve spacing between scaled pages
+                const baseGap = 20;
+                const extraGap = scale < 1 ? (1 - scale) * 520 : 0;
+                page.style.marginBottom = `${baseGap + extraGap}px`;
+            });
+        }
+
+        window.addEventListener('resize', fitPages, { passive: true });
+        window.addEventListener('orientationchange', fitPages, { passive: true });
         window.addEventListener('load', fitPages);
+
+        // Run now
         fitPages();
     })();
+
+    /* ================================
+   Print fixes: prevent "transparent" gradient text from disappearing
+   ================================ */
+    @media print {
+  /* If you use bg-clip-text / text-transparent anywhere, force visible text */
+  .text - transparent,
+            [class*= "text-transparent"] {
+            color: #0b1220!important;
+            -webkit - text - fill - color: #0b1220!important;
+        }
+
+  .bg - clip - text,
+            [class*= "bg-clip-text"] {
+            background: none!important;
+            -webkit - background - clip: border - box!important;
+            background - clip: border - box!important;
+        }
+
+  /* Extra safety: some browsers try to optimize colors in print */
+  * {
+    - webkit - print - color - adjust: exact;
+        print - color - adjust: exact;
+    }
+}
+
 </script>
+
 
 <body>
 
